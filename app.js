@@ -34,19 +34,33 @@ app.get('/', (req, res) => {
 });
 
 app.get('/process', async (req, res) => {
-  const { searchType, query } = req.query;
-  const search = query.trim();
+  const query = req.query.query || '';
+  const searchType = req.query.searchType || '';
   let results = [];
 
-  if (searchType === 'ticker') {
-    results = await collection.find({ ticker: new RegExp(`^${search}$`, 'i') }).toArray();
-  } else if (searchType === 'company') {
-    results = await collection.find({ name: new RegExp(search, 'i') }).toArray();
-  }
+  try {
+    const client = await MongoClient.connect(process.env.MONGO_URI);
+    const db = client.db('your-db-name');  // replace with your actual DB name
+    const collection = db.collection('stocks');
 
-  console.log(results); // Also log in console for assignment
-  res.render('result', { results, search });
+    if (searchType === 'ticker') {
+      results = await collection.find({
+        ticker: { $regex: new RegExp(`^${query}$`, 'i') }
+      }).toArray();
+    } else if (searchType === 'company') {
+      results = await collection.find({
+        name: { $regex: new RegExp(query, 'i') }
+      }).toArray();
+    }
+
+    res.render('process', { results, query, searchType });
+    client.close();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error connecting to database');
+  }
 });
+
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
