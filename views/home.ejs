@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>Stock Lookup</title></head>
+<body>
+  <h1>Stock Lookup</h1>
+  <form method="GET" action="/process">
+    <input type="text" name="query" required>
+    <br>
+    <label><input type="radio" name="searchType" value="ticker" checked> Ticker</label>
+    <label><input type="radio" name="searchType" value="company"> Company Name</label>
+    <br><br>
+    <button type="submit">Search</button>
+  </form>
+</body>
+</html>
